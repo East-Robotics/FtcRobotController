@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
 @TeleOp
-public class TeleOpMark20 extends LinearOpMode {
+public class TeleOpMark extends LinearOpMode {
 
 
     private DcMotor LFMotor;
