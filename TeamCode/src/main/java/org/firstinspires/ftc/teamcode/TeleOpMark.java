@@ -6,10 +6,8 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-
 @TeleOp
 public class TeleOpMark extends LinearOpMode {
-
 
     private DcMotor LFMotor;
     private DcMotor RFMotor;
@@ -60,47 +58,22 @@ public class TeleOpMark extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
 
-        LArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        LArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-        RArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-        LSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-        RSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-
-        Wrist.setPosition(1);
-        LArm.setPower(0.04);
-        RArm.setPower(-0.04);
-
         waitForStart();
         while (opModeIsActive()) {
 
             currentYState = gamepad2.y;
             currentXState = gamepad2.x;
 
-            int  LArmPos = LArm.getCurrentPosition();
-            int  RArmPos = RArm.getCurrentPosition();
-            int  LSlidePos = LSlide.getCurrentPosition();
-            int  RSlidePos = RSlide.getCurrentPosition();
-
-            telemetry.addData("RArmPos", RArmPos);
-            telemetry.addData("LArmPos", LArmPos);
-            telemetry.addData("LSlidePos", LSlidePos);
-            telemetry.addData("RSlidePos", RSlidePos);
-            telemetry.update();
-
             double RFtgtPower = 0;
             double LFtgtPower = 0;
             double RBtgtPower = 0;
             double LBtgtPower = 0;
             double py = -gamepad1.left_stick_y;
-            double px = gamepad1.left_stick_x;
+            double px = -gamepad1.left_stick_x;
             double pa = gamepad1.right_stick_x;
 
             LFMotor.setPower((py + px + pa)/0.5);
-            LBMotor.setPower((-py + px - pa)/0.5);
+            LBMotor.setPower((py - px + pa)/0.5);
             RFMotor.setPower((py - px - pa)/0.5);
             RBMotor.setPower((py + px - pa)/0.5);
 
@@ -144,8 +117,8 @@ public class TeleOpMark extends LinearOpMode {
                 RArm.setPower(-0.6);
             }
             else{
-                LArm.setPower(0.04);
-                RArm.setPower(-0.04);
+                LArm.setPower(0.07);
+                RArm.setPower(-0.07);
             }
 //Slide control
             if (gamepad1.right_bumper){//down
@@ -153,20 +126,13 @@ public class TeleOpMark extends LinearOpMode {
                 RSlide.setPower(0.7);
             }
             else if (gamepad1.left_bumper){//up
-                if ((LArmPos < 1300) && (RArmPos < 1300) && ((LSlidePos > 1500) && (RSlidePos < -1500))){
-                    LSlide.setPower(0);
-                    RSlide.setPower(0);
-                }
-                else{
-                    LSlide.setPower(-0.6);
-                    RSlide.setPower(-0.6);
-                }
+                LSlide.setPower(-0.6);
+                RSlide.setPower(-0.6);
             }
             else{
-                LSlide.setPower(-0.04);
-                RSlide.setPower(-0.04);
+                LSlide.setPower(-0.07);
+                RSlide.setPower(-0.07);
             }
-
         }
     }
 }
