@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -6,9 +7,13 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Pinpoint_Setup;
+
 
 @TeleOp
-public class TeleOpMark extends LinearOpMode {
+public class Auto_Specimen extends LinearOpMode {
 
 
     private DcMotor LFMotor;
@@ -46,6 +51,9 @@ public class TeleOpMark extends LinearOpMode {
         Wrist = hardwareMap.get(Servo.class, "Wrist");
         Claw = hardwareMap.get(Servo.class, "Claw");
 
+
+
+
         //Encoders
        /* LFMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         LBMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -65,20 +73,40 @@ public class TeleOpMark extends LinearOpMode {
         LSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         RSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        LArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-        RArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-        LSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-        RSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-
         Wrist.setPosition(1);
-        LArm.setPower(0.04);
-        RArm.setPower(-0.04);
+//Arm Encoders
+        LArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        int AxelUpPos = 1000; // changeable
+        int AxelMidPos = 200;
+        int AxelDownPos = 0;
+
+        LArm.setTargetPosition(AxelMidPos);
+        RArm.setTargetPosition(AxelMidPos);
+
+        LArm.setPower(0.4);
+        RArm.setPower(0.4);
+
+        LArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        RArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        LArm.setPower(0);
+        RArm.setPower(0);
+//Slide Encoders
+        LSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        int slideUpPos = 1000; // changeable
+        int slideDownPos = 0;
+
+        LSlide.setTargetPosition(slideDownPos);
+        RSlide.setTargetPosition(slideDownPos);
+
+        LSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        RSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         waitForStart();
         while (opModeIsActive()) {
-
-            currentYState = gamepad2.y;
-            currentXState = gamepad2.x;
 
             int  LArmPos = LArm.getCurrentPosition();
             int  RArmPos = RArm.getCurrentPosition();
@@ -91,81 +119,45 @@ public class TeleOpMark extends LinearOpMode {
             telemetry.addData("RSlidePos", RSlidePos);
             telemetry.update();
 
-            double RFtgtPower = 0;
-            double LFtgtPower = 0;
-            double RBtgtPower = 0;
-            double LBtgtPower = 0;
-            double py = -gamepad1.left_stick_y;
-            double px = gamepad1.left_stick_x;
-            double pa = gamepad1.right_stick_x;
+            //Wheels Forward
+         //   Pose2D setPosition = new Pose2D(DistanceUnit.MM, (Pinpoint_Setup.getPosX()) + 15, 0,0);
 
-            LFMotor.setPower((py + px + pa)/0.5);
-            LBMotor.setPower((-py + px - pa)/0.5);
-            RFMotor.setPower((py - px - pa)/0.5);
-            RBMotor.setPower((py + px - pa)/0.5);
+            //Slide Up
+            LSlide.setTargetPosition(300);
+            RSlide.setTargetPosition(300);
 
-//Wrist toggle
-            if (currentYState && !lastYState) {
-                WristIsOpen = !WristIsOpen;
-            }
+            LSlide.setPower(0.6);
+            RSlide.setPower(0.6);
 
-            lastYState = currentYState;
+            LSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            RSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-            if (WristIsOpen) {
-                Wrist.setPosition(0.4);
-            }
-            else {
-                Wrist.setPosition(0.85);
-            }
+            LSlide.setPower(0.04);
+            RSlide.setPower(0.04);
+//Wrist Down
+
+            Wrist.setPosition(0.4);
+//Claw Open
+            Claw.setPosition(0.4);
+//Slide Down
+            LSlide.setTargetPosition(slideDownPos);
+            RSlide.setTargetPosition(slideDownPos);
+
+            LSlide.setPower(-0.6);
+            RSlide.setPower(-0.6);
+
+            LSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            RSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            LSlide.setPower(0);
+            RSlide.setPower(0);
+//Move Back
 
 
+//Strafe Right
 
-//Claw toggle
-            if (currentXState && !lastXState) {
-                ClawIsOpen = !ClawIsOpen;
-            }
 
-            lastXState = currentXState;
-
-            if (ClawIsOpen) {
-                Claw.setPosition(0.2);
-
-            } else {
-                Claw.setPosition(0.40);
-            }
-
-//Arm control
-            if (gamepad2.right_bumper) {
-                LArm.setPower(-0.6);
-                RArm.setPower(0.6);
-            }
-            else if(gamepad2.left_bumper){
-                LArm.setPower(0.6);
-                RArm.setPower(-0.6);
-            }
-            else{
-                LArm.setPower(0.04);
-                RArm.setPower(-0.04);
-            }
-//Slide control
-            if (gamepad1.right_bumper){//down
-                LSlide.setPower(0.7);
-                RSlide.setPower(0.7);
-            }
-            else if (gamepad1.left_bumper){//up
-                if ((LArmPos < 1300) && (RArmPos < 1300) && ((LSlidePos > 1500) && (RSlidePos < -1500))){
-                    LSlide.setPower(0);
-                    RSlide.setPower(0);
-                }
-                else{
-                    LSlide.setPower(-0.6);
-                    RSlide.setPower(-0.6);
-                }
-            }
-            else{
-                LSlide.setPower(-0.04);
-                RSlide.setPower(-0.04);
-            }
+//Park
 
         }
     }
