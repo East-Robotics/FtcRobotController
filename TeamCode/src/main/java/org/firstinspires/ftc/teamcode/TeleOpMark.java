@@ -76,16 +76,18 @@ public class TeleOpMark extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
-
+        if (gamepad1.a){
             LArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             RArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             LSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             RSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-            LArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-            RArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-            LSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
-            RSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+            LArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            RArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            LSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            RSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+
 
             currentYState = gamepad2.y;
             currentXState = gamepad2.x;
