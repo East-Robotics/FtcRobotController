@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Pinpoint_Setup;
@@ -113,6 +114,9 @@ public class Auto_Specimen extends LinearOpMode {
             int  LSlidePos = LSlide.getCurrentPosition();
             int  RSlidePos = RSlide.getCurrentPosition();
 
+           double XPos  = (Pinpoint_Setup.getPosX());
+           double YPos  = (Pinpoint_Setup.getPosY());
+
             telemetry.addData("RArmPos", RArmPos);
             telemetry.addData("LArmPos", LArmPos);
             telemetry.addData("LSlidePos", LSlidePos);
@@ -120,7 +124,7 @@ public class Auto_Specimen extends LinearOpMode {
             telemetry.update();
 
             //Wheels Forward
-         //   Pose2D setPosition = new Pose2D(DistanceUnit.MM, (Pinpoint_Setup.getPosX()) + 15, 0,0);
+            Pose2D setPosition = new Pose2D(DistanceUnit.MM, XPos + 15, YPos, AngleUnit.RADIANS,0);
 
             //Slide Up
             LSlide.setTargetPosition(300);
@@ -152,10 +156,10 @@ public class Auto_Specimen extends LinearOpMode {
             LSlide.setPower(0);
             RSlide.setPower(0);
 //Move Back
+            setPosition = new Pose2D(DistanceUnit.MM, XPos - 5, YPos, AngleUnit.RADIANS,0);
 
-
-//Strafe Right
-
+//Strafe Left
+            setPosition = new Pose2D(DistanceUnit.MM, XPos, YPos - 30, AngleUnit.RADIANS,0);
 
 //Park
 
