@@ -32,8 +32,8 @@ public class Pinpoint_Setup extends I2cDeviceSynchDevice<I2cDeviceSynchSimple> {
     private int loopTime       = 0;
     private int xEncoderValue  = 0;
     private int yEncoderValue  = 0;
-    private static float xPosition    = 0;
-    private static float yPosition    = 0;
+    private float xPosition    = 0;
+    private float yPosition    = 0;
     private float hOrientation = 0;
     private float xVelocity    = 0;
     private float yVelocity    = 0;
@@ -430,12 +430,12 @@ public class Pinpoint_Setup extends I2cDeviceSynchDevice<I2cDeviceSynchSimple> {
     /**
      * @return the estimated X (forward) position of the robot in mm
      */
-    public static double getPosX(){return xPosition; }
+    public double getPosX(){return xPosition; }
 
     /**
      * @return the estimated Y (Strafe) position of the robot in mm
      */
-    public static double getPosY(){return yPosition; }
+    public double getPosY(){return yPosition; }
 
     /**
      * @return the estimated H (heading) position of the robot in Radians

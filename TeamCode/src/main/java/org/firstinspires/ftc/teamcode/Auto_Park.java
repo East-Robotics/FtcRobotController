@@ -81,14 +81,14 @@ public class Auto_Park extends LinearOpMode {
             telemetry.addData("RSlidePos", RSlidePos);
             telemetry.update();
             while (opModeIsActive()) {
-                double XPos  = (Pinpoint_Setup.getPosX());
-                double YPos  = (Pinpoint_Setup.getPosY());
+              //  double XPos  = (Pinpoint_Setup.getPosX());
+             //   double YPos  = (Pinpoint_Setup.getPosY());
 
                 LFMotor.setPower(0.6);
                 LBMotor.setPower(0.6);
                 RFMotor.setPower(0.6);
                 RBMotor.setPower(0.6);
-                Pose2D setPosition = new Pose2D(DistanceUnit.MM, XPos, YPos + 30, AngleUnit.RADIANS,0);
+              //  Pose2D setPosition = new Pose2D(DistanceUnit.MM, XPos, YPos + 30, AngleUnit.RADIANS,0);
 
                 LFMotor.setPower(0);
                 LBMotor.setPower(0);

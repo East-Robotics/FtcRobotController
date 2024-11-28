@@ -76,7 +76,7 @@ public class TeleOpMark extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
-        if (gamepad1.a){
+        if (gamepad1.b){
             LArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             RArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             LSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -124,10 +124,10 @@ public class TeleOpMark extends LinearOpMode {
             lastYState = currentYState;
 
             if (WristIsOpen) {
-                Wrist.setPosition(0.4);
+                Wrist.setPosition(0.48);
             }
             else {
-                Wrist.setPosition(0.85);
+                Wrist.setPosition(0.60);
             }
 
 
@@ -156,8 +156,8 @@ public class TeleOpMark extends LinearOpMode {
                 RArm.setPower(-0.6);
             }
             else{
-                LArm.setPower(0.04);
-                RArm.setPower(-0.04);
+                LArm.setPower(-0.05);
+                RArm.setPower(0.05);
             }
 //Slide control
             if (gamepad1.right_bumper){//down

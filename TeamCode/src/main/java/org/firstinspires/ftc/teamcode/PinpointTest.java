@@ -51,16 +51,29 @@ public class PinpointTest extends LinearOpMode {
 
     Pinpoint_Setup odo; // Declare OpMode member for the Odometry Computer
 
+    double d;
+
     double oldTime = 0;
 
+    double TarX = 0;
+    double TarY = 0;
 
+    private DcMotor LFMotor;
+    private DcMotor RFMotor;
+    private DcMotor LBMotor;
+    private DcMotor RBMotor;
+    
     @Override
     public void runOpMode() {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
 
-        odo = hardwareMap.get(Pinpoint_Setup.class,"odo");
+        odo = hardwareMap.get(Pinpoint_Setup.class, "odo");
+        LFMotor = hardwareMap.get(DcMotor.class, "LFMotor");
+        RFMotor = hardwareMap.get(DcMotor.class, "RFMotor");
+        LBMotor = hardwareMap.get(DcMotor.class, "LBMotor");
+        RBMotor = hardwareMap.get(DcMotor.class, "RBMotor");
 
         /*
         Set the odometry pod positions relative to the point that the odometry computer tracks around.
@@ -72,14 +85,17 @@ public class PinpointTest extends LinearOpMode {
          */
         odo.setOffsets(-84.0, -168.0); //these are tuned for 3110-0002-0001 Product Insight #1
 
+
+
+
         /*
         Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
         the goBILDA_SWINGARM_POD, or the goBILDA_4_BAR_POD.
         If you're using another kind of odometry pod, uncomment setEncoderResolution and input the
         number of ticks per mm of your odometry pod.
          */
-        odo.setEncoderResolution(Pinpoint_Setup.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        //odo.setEncoderResolution(13.26291192);
+        odo.setEncoderResolution(Pinpoint_Setup.GoBildaOdometryPods.goBILDA_SWINGARM_POD);
+        odo.setEncoderResolution(13.26291192);
 
 
         /*
@@ -126,14 +142,14 @@ public class PinpointTest extends LinearOpMode {
             Optionally, you can update only the heading of the device. This takes less time to read, but will not
             pull any other data. Only the heading (which you can pull with getHeading() or in getPosition().
              */
-            //odo.update(GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING);
+            odo.update(Pinpoint_Setup.readData.ONLY_UPDATE_HEADING);
 
 
-            if (gamepad1.a){
+            if (gamepad1.a) {
                 odo.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
             }
 
-            if (gamepad1.b){
+            if (gamepad1.b) {
                 odo.recalibrateIMU(); //recalibrates the IMU without resetting position
             }
 
@@ -144,8 +160,8 @@ public class PinpointTest extends LinearOpMode {
             that cycle time.
              */
             double newTime = getRuntime();
-            double loopTime = newTime-oldTime;
-            double frequency = 1/loopTime;
+            double loopTime = newTime - oldTime;
+            double frequency = 1 / loopTime;
             oldTime = newTime;
 
 
@@ -160,7 +176,7 @@ public class PinpointTest extends LinearOpMode {
             gets the current Velocity (x & y in mm/sec and heading in degrees/sec) and prints it.
              */
             Pose2D vel = odo.getVelocity();
-            String velocity = String.format(Locale.US,"{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(DistanceUnit.MM), vel.getY(DistanceUnit.MM), vel.getHeading(AngleUnit.DEGREES));
+            String velocity = String.format(Locale.US, "{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(DistanceUnit.MM), vel.getY(DistanceUnit.MM), vel.getHeading(AngleUnit.DEGREES));
             telemetry.addData("Velocity", velocity);
 
 
@@ -181,4 +197,84 @@ public class PinpointTest extends LinearOpMode {
             telemetry.update();
 
         }
-    }}
+    }
+    public void moveToPosition(double targetX, double targetY) {
+
+        final double MAX_SPEED = 1.0;
+        // Calculate current position
+        Pose2D currentPose = odo.getPosition();
+        double currentX = odo.getPosX();
+        double currentY = odo.getPosY();
+        double currentHeading = odo.getHeading();  // current theta (orientation)
+
+        // Error in X and Y
+        double errorX = targetX - currentX;
+        double errorY = targetY - currentY;
+
+        // Calculate the distance to the target
+        double distanceToTarget = Math.sqrt(errorX * errorX + errorY * errorY);
+
+        // If the robot is within a small threshold, stop moving
+        double threshold = 0.5;  // in inches (or any other unit)
+        if (distanceToTarget < threshold) {
+            stopMotors();
+            return;
+        }
+
+        // Calculate the angle to the target
+        double angleToTarget = Math.atan2(errorY, errorX);
+
+        // Calculate heading error (difference between current heading and angle to target)
+        double headingError = angleToTarget - currentHeading;
+
+        // Normalize the heading error to the range [-pi, pi]
+        headingError = normalizeAngle(headingError);
+
+        // Proportional control for heading (rotation)
+        double rotationSpeed = headingError * 0.5;  // PID constant can be adjusted (0.5 here is just a simple constant)
+
+        // Proportional control for linear movement (forward/backward)
+        double linearSpeed = distanceToTarget * 0.5;  // Speed constant, can adjust to make robot move faster/slower
+
+        // Ensure that the robot doesn't exceed the maximum speed
+        linearSpeed = Math.min(MAX_SPEED, Math.max(-MAX_SPEED, linearSpeed));
+        rotationSpeed = Math.min(MAX_SPEED, Math.max(-MAX_SPEED, rotationSpeed));
+
+        // Apply speeds to motors
+        if (Math.abs(headingError) > 0.1) {  // If significant heading error, turn to face target
+            setMotorSpeeds(rotationSpeed, -rotationSpeed);  // Rotate in place
+        } else {  // Otherwise, move straight toward target
+            setMotorSpeeds(linearSpeed, linearSpeed);
+        }
+    }
+
+    // Helper method to normalize the angle to the range [-pi, pi]
+    private double normalizeAngle(double angle) {
+        if (angle > Math.PI) {
+            return angle - 2 * Math.PI;
+        } else if (angle < -Math.PI) {
+            return angle + 2 * Math.PI;
+        } else {
+            return angle;
+        }
+    }
+
+    // Helper method to set motor speeds
+    private void setMotorSpeeds(double leftSpeed, double rightSpeed) {
+        LFMotor.setPower(leftSpeed);
+        LBMotor.setPower(leftSpeed);
+        RFMotor.setPower(rightSpeed);
+        RBMotor.setPower(rightSpeed);
+    }
+
+    // Helper method to stop the motors
+    private void stopMotors() {
+        LFMotor.setPower(0);
+        LBMotor.setPower(0);
+        RFMotor.setPower(0);
+        RBMotor.setPower(0);
+    }
+}
+
+
+
