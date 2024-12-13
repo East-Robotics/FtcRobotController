@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+/**package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
 
@@ -42,7 +42,7 @@ https://github.com/calcmogul/controls-engineering-in-frc
 For support, contact tech@gobilda.com
 
 -Ethan Doak
- */
+
 
 @TeleOp(name="goBILDA® PinPoint Odometry Example", group="Linear OpMode")
 //@Disabled
@@ -82,7 +82,7 @@ public class PinpointTest extends LinearOpMode {
         right of center is a negative number. the Y pod offset refers to how far forwards from
         the tracking point the Y (strafe) odometry pod is. forward of center is a positive number,
         backwards is a negative number.
-         */
+
         odo.setOffsets(-84.0, -168.0); //these are tuned for 3110-0002-0001 Product Insight #1
 
 
@@ -93,7 +93,7 @@ public class PinpointTest extends LinearOpMode {
         the goBILDA_SWINGARM_POD, or the goBILDA_4_BAR_POD.
         If you're using another kind of odometry pod, uncomment setEncoderResolution and input the
         number of ticks per mm of your odometry pod.
-         */
+
         odo.setEncoderResolution(Pinpoint_Setup.GoBildaOdometryPods.goBILDA_SWINGARM_POD);
         odo.setEncoderResolution(13.26291192);
 
@@ -102,7 +102,7 @@ public class PinpointTest extends LinearOpMode {
         Set the direction that each of the two odometry pods count. The X (forward) pod should
         increase when you move the robot forward. And the Y (strafe) pod should increase when
         you move the robot to the left.
-         */
+
         odo.setEncoderDirections(Pinpoint_Setup.EncoderDirection.FORWARD, Pinpoint_Setup.EncoderDirection.FORWARD);
 
 
@@ -113,7 +113,7 @@ public class PinpointTest extends LinearOpMode {
         resetPosAndIMU will reset the position to 0,0,0 and also recalibrate the IMU.
         This is recommended before you run your autonomous, as a bad initial calibration can cause
         an incorrect starting value for x, y, and heading.
-         */
+
         //odo.recalibrateIMU();
         odo.resetPosAndIMU();
 
@@ -135,13 +135,13 @@ public class PinpointTest extends LinearOpMode {
             /*
             Request an update from the Pinpoint odometry computer. This checks almost all outputs
             from the device in a single I2C read.
-             */
+
             odo.update();
 
             /*
             Optionally, you can update only the heading of the device. This takes less time to read, but will not
             pull any other data. Only the heading (which you can pull with getHeading() or in getPosition().
-             */
+
             odo.update(Pinpoint_Setup.readData.ONLY_UPDATE_HEADING);
 
 
@@ -158,7 +158,7 @@ public class PinpointTest extends LinearOpMode {
             by I²C reads/writes. So it's good to keep an eye on. This code calculates the amount
             of time each cycle takes and finds the frequency (number of updates per second) from
             that cycle time.
-             */
+
             double newTime = getRuntime();
             double loopTime = newTime - oldTime;
             double frequency = 1 / loopTime;
@@ -167,14 +167,14 @@ public class PinpointTest extends LinearOpMode {
 
             /*
             gets the current Position (x & y in mm, and heading in degrees) of the robot, and prints it.
-             */
+
             Pose2D pos = odo.getPosition();
             String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.MM), pos.getY(DistanceUnit.MM), pos.getHeading(AngleUnit.DEGREES));
             telemetry.addData("Position", data);
 
             /*
             gets the current Velocity (x & y in mm/sec and heading in degrees/sec) and prints it.
-             */
+
             Pose2D vel = odo.getVelocity();
             String velocity = String.format(Locale.US, "{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(DistanceUnit.MM), vel.getY(DistanceUnit.MM), vel.getHeading(AngleUnit.DEGREES));
             telemetry.addData("Velocity", velocity);
@@ -188,7 +188,7 @@ public class PinpointTest extends LinearOpMode {
             FAULT_NO_PODS_DETECTED - the device does not detect any pods plugged in
             FAULT_X_POD_NOT_DETECTED - The device does not detect an X pod plugged in
             FAULT_Y_POD_NOT_DETECTED - The device does not detect a Y pod plugged in
-            */
+
             telemetry.addData("Status", odo.getDeviceStatus());
 
             telemetry.addData("Pinpoint Frequency", odo.getFrequency()); //prints/gets the current refresh rate of the Pinpoint
@@ -275,6 +275,6 @@ public class PinpointTest extends LinearOpMode {
         RBMotor.setPower(0);
     }
 }
-
+*/
 
 

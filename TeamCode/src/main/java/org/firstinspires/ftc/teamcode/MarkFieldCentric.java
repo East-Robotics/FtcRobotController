@@ -1,14 +1,19 @@
 package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 
 @TeleOp
-public class TeleOpMark extends LinearOpMode {
+public class MarkFieldCentric extends LinearOpMode {
 
 
     private DcMotor LFMotor;
@@ -32,6 +37,8 @@ public class TeleOpMark extends LinearOpMode {
     boolean lastXState = false;
     boolean currentXState = false;
 
+    int x = 0;
+
 
     public void runOpMode() {
         LFMotor = hardwareMap.get(DcMotor.class, "LFMotor");
@@ -42,7 +49,6 @@ public class TeleOpMark extends LinearOpMode {
         RSlide = hardwareMap.get(DcMotor.class, "RSlide");
         LArm = hardwareMap.get(DcMotor.class, "LArm");
         RArm = hardwareMap.get(DcMotor.class, "RArm");
-
         Wrist = hardwareMap.get(Servo.class, "Wrist");
         Claw = hardwareMap.get(Servo.class, "Claw");
 
@@ -54,6 +60,7 @@ public class TeleOpMark extends LinearOpMode {
 
         LBMotor.setDirection(DcMotor.Direction.REVERSE);
         LFMotor.setDirection(DcMotor.Direction.REVERSE);
+
 
         //   LArm.setDirection(DcMotor.Direction.REVERSE);
 
@@ -70,25 +77,24 @@ public class TeleOpMark extends LinearOpMode {
         LSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
         RSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
 
-        Wrist.setPosition(1);
         LArm.setPower(0.04);
         RArm.setPower(-0.04);
 
         Wrist.setDirection(Servo.Direction.REVERSE);
 
-        waitForStart();
-        while (opModeIsActive()) {
-        if (gamepad1.b){
-            LArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            RArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            LSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            RSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        IMU imu = hardwareMap.get(IMU.class, "imu");
+        // Adjust the orientation parameters to match your robot
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.DOWN,
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+        // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
+        imu.initialize(parameters);
 
-            LArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            RArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            LSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            RSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
+        waitForStart();
+
+        imu.resetYaw();
+
+        while (opModeIsActive()) {
 
 
             currentYState = gamepad2.y;
@@ -105,18 +111,47 @@ public class TeleOpMark extends LinearOpMode {
             telemetry.addData("RSlidePos", RSlidePos);
             telemetry.update();
 
-            double RFtgtPower = 0;
-            double LFtgtPower = 0;
-            double RBtgtPower = 0;
-            double LBtgtPower = 0;
+            if (RArmPos <= -1900 && LArmPos >= 1900 && x< 1){
+                LArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                RArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+                LArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                RArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                x += 1;
+            }
+
+
             double py = -gamepad1.left_stick_y;
             double px = gamepad1.left_stick_x;
             double pa = gamepad1.right_stick_x;
 
-            LFMotor.setPower((py + px + pa)/0.5);
-            LBMotor.setPower((-py + px - pa)/0.5);
-            RFMotor.setPower((py - px - pa)/0.5);
-            RBMotor.setPower((py + px - pa)/0.5);
+            double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            botHeading -= Math.toRadians(90);
+
+            if (gamepad1.start) {
+                imu.resetYaw();
+            }
+
+            // Rotate the movement direction counter to the bot's rotation
+            double rotX = px * Math.cos(-botHeading) - py * Math.sin(-botHeading);
+            double rotY = px * Math.sin(-botHeading) + py * Math.cos(-botHeading);
+
+            rotX = rotX * 1.5;  // Counteract imperfect strafing
+
+            double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(pa), 1);
+
+            double LFtgtPower = (rotY + rotX + pa)/denominator;
+            double LBtgtPower = (-rotY + rotX - pa) /denominator;
+            double RFtgtPower = (rotY - rotX - pa)/denominator;
+            double RBtgtPower = (rotY + rotX - pa)/denominator;
+
+            RFMotor.setPower(RFtgtPower);
+
+            LFMotor.setPower(LFtgtPower);
+
+            RBMotor.setPower(RBtgtPower);
+
+            LBMotor.setPower(LBtgtPower);
 
 //Wrist toggle
             if (currentYState && !lastYState) {

@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.IMU;
 
 import com.qualcomm.hardware.lynx.LynxI2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cAddr;
@@ -19,7 +20,7 @@ import com.qualcomm.robotcore.util.TypeConversion;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.Pinpoint_Setup;
+//import org.firstinspires.ftc.teamcode.Pinpoint_Setup;
 
 
 @Autonomous
@@ -37,7 +38,7 @@ public class Auto_Specimen extends LinearOpMode {
     private Servo Wrist;
     private Servo Claw;
 
-    Pinpoint_Setup odo;
+   // Pinpoint_Setup odo;
 
 
     boolean WristIsOpen = true;
@@ -65,14 +66,15 @@ public class Auto_Specimen extends LinearOpMode {
         Wrist = hardwareMap.get(Servo.class, "Wrist");
         Claw = hardwareMap.get(Servo.class, "Claw");
 
-        odo = hardwareMap.get(Pinpoint_Setup.class,"odo");
+     //   odo = hardwareMap.get(Pinpoint_Setup.class,"odo");
 
 
 
 
         //Encoder
-        LBMotor.setDirection(DcMotor.Direction.REVERSE);
+        LBMotor.setDirection(DcMotor.Direction.FORWARD);
         LFMotor.setDirection(DcMotor.Direction.REVERSE);
+        Wrist.setDirection(Servo.Direction.FORWARD);
 
          //  RArm.setDirection(DcMotor.Direction.REVERSE);
 
@@ -84,13 +86,13 @@ public class Auto_Specimen extends LinearOpMode {
         LSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         RSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        Wrist.setPosition(0.85);
+        Claw.setPosition(0.9);
 //Arm Encoders
         int AxelUpPos = 1000; // changeable
         int AxelMidPos = 200;
         int AxelDownPos = 0;
 
- /*       LArm.setTargetPosition(-1237);
+        LArm.setTargetPosition(-1237);
         RArm.setTargetPosition(1277);
 
         LArm.setPower(0.4);
@@ -103,7 +105,7 @@ public class Auto_Specimen extends LinearOpMode {
             LArm.setPower(0.04);
             RArm.setPower(0.04);
         }
-
+    /*
 
 //Slide Encoders
         LSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -202,10 +204,10 @@ public class Auto_Specimen extends LinearOpMode {
         RFMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         RBMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        LFMotor.setTargetPosition(5000);
-        RFMotor.setTargetPosition(5000);
-        LBMotor.setTargetPosition(-5000);
-        RBMotor.setTargetPosition(5000);
+        LFMotor.setTargetPosition(500);
+        RFMotor.setTargetPosition(500);
+        LBMotor.setTargetPosition(500);
+        RBMotor.setTargetPosition(500);
 
         LFMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         LBMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -216,7 +218,21 @@ public class Auto_Specimen extends LinearOpMode {
         LBMotor.setPower(0.6);
         RFMotor.setPower(0.6);
         RBMotor.setPower(0.6);
-        while (opModeIsActive() && (LFMotor.isBusy()) && (RFMotor.isBusy()) && (LBMotor.isBusy()) && (RBMotor.isBusy())) {
+
+        LArm.setTargetPosition(-1500);
+        RArm.setTargetPosition(1500);
+
+        LArm.setPower(0.4);
+        RArm.setPower(0.4);
+
+        LArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        RArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        Wrist.setPosition(0.7);
+
+      //Wrist.setPosition(0.2);
+
+        while (opModeIsActive() && (LBMotor.isBusy())) {
 
             int  LArmPos = LArm.getCurrentPosition();
             int  RArmPos = RArm.getCurrentPosition();
@@ -227,8 +243,8 @@ public class Auto_Specimen extends LinearOpMode {
             int  RFMotorPos = RFMotor.getCurrentPosition();
             int  RBMotorPos = RBMotor.getCurrentPosition();
 
-         //  XPos  = (Pinpoint_Setup.getPosX());
-        //   YPos  = (Pinpoint_Setup.getPosY());
+        //  XPos  = (Pinpoint_Setup.getPosX());
+        //  YPos  = (Pinpoint_Setup.getPosY());
 
             telemetry.addData("RArmPos", RArmPos);
             telemetry.addData("LArmPos", LArmPos);
@@ -238,9 +254,12 @@ public class Auto_Specimen extends LinearOpMode {
             telemetry.addData("LBMotorPos", LBMotorPos);
             telemetry.addData("RFMotorPos", RFMotorPos);
             telemetry.addData("RBMotorPos", RBMotorPos);
-           // telemetry.addData("XPos", XPos);
-           // telemetry.addData("YPos", YPos);
+            // telemetry.addData("XPos", XPos);
+            // telemetry.addData("YPos", YPos);
             telemetry.update();
+
+            LArm.setPower(0.04);
+            RArm.setPower(0.04);
 
 
         }
@@ -248,5 +267,11 @@ public class Auto_Specimen extends LinearOpMode {
         LBMotor.setPower(0);
         RFMotor.setPower(0);
         RBMotor.setPower(0);
+        LSlide.setPower(0);
+        RSlide.setPower(0);
+        RArm.setPower(0);
+        LArm.setPower(0);
+
+
     }
 }
